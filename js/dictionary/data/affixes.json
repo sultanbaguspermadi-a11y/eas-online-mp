@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "about": "Clitic grammar. A word is [أ] [و|ف] [ب|ل|ك|س|ل-أمر] [ال] STEM [pronoun suffix]; each entry class says which parts it accepts.",
+  "groups": {
+    "conj": [
+      "و",
+      "ف"
+    ],
+    "prep": [
+      "ب",
+      "ل",
+      "ك"
+    ],
+    "future": [
+      "س"
+    ],
+    "lamCommand": [
+      "ل"
+    ],
+    "article": [
+      "ال"
+    ],
+    "interrog": [
+      "أ"
+    ],
+    "lamEmph": [
+      "ل"
+    ]
+  },
+  "suffixSets": {
+    "poss": [
+      "ي",
+      "نا",
+      "ك",
+      "كما",
+      "كم",
+      "كن",
+      "ه",
+      "ها",
+      "هما",
+      "هم",
+      "هن"
+    ],
+    "obj": [
+      "ني",
+      "نا",
+      "ك",
+      "كما",
+      "كم",
+      "كن",
+      "ه",
+      "ها",
+      "هما",
+      "هم",
+      "هن"
+    ],
+    "prep": [
+      "ي",
+      "نا",
+      "ك",
+      "كما",
+      "كم",
+      "كن",
+      "ه",
+      "ها",
+      "هما",
+      "هم",
+      "هن"
+    ],
+    "part": [
+      "ني",
+      "ي",
+      "نا",
+      "ك",
+      "كما",
+      "كم",
+      "كن",
+      "ه",
+      "ها",
+      "هما",
+      "هم",
+      "هن"
+    ]
+  },
+  "classes": {
+    "N": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "prep",
+        "article"
+      ],
+      "suffix": "poss",
+      "about": "noun / adjective / participle / masdar"
+    },
+    "VP": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "lamEmph"
+      ],
+      "suffix": "obj",
+      "about": "perfect verb (also after the lam of oath: لقد، لأبدلت)"
+    },
+    "VI": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "future",
+        "lamEmph"
+      ],
+      "suffix": "obj",
+      "about": "indicative imperfect"
+    },
+    "VJ": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "lamCommand",
+        "lamEmph"
+      ],
+      "suffix": "obj",
+      "about": "jussive / subjunctive spelling"
+    },
+    "VB": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "future",
+        "lamCommand",
+        "lamEmph"
+      ],
+      "suffix": "obj",
+      "about": "spelling shared by indicative and jussive"
+    },
+    "VM": {
+      "prefix": [
+        "conj"
+      ],
+      "suffix": "obj",
+      "about": "imperative"
+    },
+    "F": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "lamEmph"
+      ],
+      "suffix": null,
+      "about": "function word"
+    },
+    "FS": {
+      "prefix": [
+        "interrog",
+        "conj"
+      ],
+      "suffix": "prep",
+      "about": "preposition that takes pronoun suffixes (منه، عنها، عليهم)"
+    },
+    "FT": {
+      "prefix": [
+        "interrog",
+        "conj"
+      ],
+      "suffix": "part",
+      "about": "inna and sisters (إنه، لكنني، ليتني)"
+    },
+    "FD": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "prep"
+      ],
+      "suffix": null,
+      "about": "demonstratives / ما / من, which take ب ل ك (بهذا، لذلك، كمن)"
+    },
+    "FA": {
+      "prefix": [
+        "conj",
+        "prep"
+      ],
+      "suffix": null,
+      "inherentArticle": true,
+      "about": "words that contain ال themselves (الذي، الآن)"
+    },
+    "FB": {
+      "prefix": [
+        "conj"
+      ],
+      "suffix": "prep",
+      "about": "bound prepositions ب and ل with a pronoun (به، لها)"
+    },
+    "X": {
+      "prefix": [],
+      "suffix": null,
+      "about": "exact surface form only"
+    },
+    "PP": {
+      "prefix": [
+        "interrog",
+        "conj"
+      ],
+      "suffix": null,
+      "about": "passive perfect (قيل، دعي، سئل): no object suffix"
+    },
+    "PI": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "future"
+      ],
+      "suffix": null,
+      "about": "passive indicative imperfect (يقال، يدعى، يوصل)"
+    },
+    "PJ": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "lamCommand"
+      ],
+      "suffix": null,
+      "about": "passive jussive / subjunctive spelling"
+    },
+    "PB": {
+      "prefix": [
+        "interrog",
+        "conj",
+        "future",
+        "lamCommand"
+      ],
+      "suffix": null,
+      "about": "passive spelling shared by indicative and jussive"
+    }
+  },
+  "kindRules": {
+    "dropn": {
+      "exclude": [
+        "ي"
+      ]
+    },
+    "ya": {
+      "exclude": [
+        "ي"
+      ]
+    }
+  }
+}

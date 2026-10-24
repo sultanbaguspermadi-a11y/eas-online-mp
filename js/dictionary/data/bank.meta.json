@@ -1,0 +1,31 @@
+{
+  "source": "user-supplied Arabic word bank (Arabic.txt), provenance and licence to be confirmed by the project owner",
+  "input": "Arabic.txt",
+  "sha256": "841a06e29174b32a56c39d5060985783f420a7203a23e16f56a4e6a0308253df",
+  "builtAt": "2026-10-22",
+  "minAlive": 6,
+  "counts": {
+    "read": 5691498,
+    "notArabic": 1,
+    "badLength": 33,
+    "badOrthography": 8,
+    "duplicate": 0,
+    "kept": 5691456,
+    "corroborated": 5558230,
+    "weak": 133226
+  },
+  "bank": {
+    "words": 5558230,
+    "nodes": 214582,
+    "edges": 1073874,
+    "bytes": 4295496,
+    "gzBytes": 2334679
+  },
+  "bank-weak": {
+    "words": 133226,
+    "nodes": 28978,
+    "edges": 101645,
+    "bytes": 406580,
+    "gzBytes": 262238
+  }
+}

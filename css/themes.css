@@ -1,0 +1,133 @@
+/* Theme palettes. Themes are purely visual: they only define the custom properties below (colours, never sizes).
+   js/themes.js sets <html data-theme="id">; an unknown id matches no block, so the :root (classic) values apply.
+   Token groups: page/text · panels · dialogs · buttons · board · premium squares · tiles · racks · toast · states · cover.
+   Every theme defines every token. Text/background pairs were checked for WCAG AA (4.5:1) contrast. */
+
+/* ---------- Classic Wood (default) ---------- */
+:root,
+[data-theme="classic"] {
+  --bg-page-1:#4a2d1b; --bg-page-2:#24150c;
+  --text-main:#f6ecd2; --accent:#d4af37; --accent-text:#d4af37; --accent-ink:#3b2a05;
+  --focus:#d4af37; --focus-halo:#1a0f08;
+
+  --panel-bg:#1a0f08cc; --panel-line:#b8893f55; --surface-inset:#0004; --chip-bg:#0006; --chip-line:#d4af3755;
+  --dialog-bg:#2b1a10; --dialog-line:#d4af37; --backdrop:#000a;
+
+  --btn-1:#6b4428; --btn-2:#4a2c18; --btn-text:#f6ecd2; --btn-line:#0006;
+  --btn-main-1:#1f7a46; --btn-main-2:#14532d; --btn-main-text:#f6ecd2;
+  --btn-danger-1:#9a2d3e; --btn-danger-2:#6b1826; --btn-danger-text:#f6ecd2;
+
+  --board-1:#6b4428; --board-2:#4a2c18; --board-line:#2a170b; --board-rim:#b8893f55;
+  --sq-empty:#b98f58; --sq-line:#0004;
+  --premium-dl:#3e7d97; --premium-tl:#1d4f91; --premium-dw:#b24a5a; --premium-tw:#760f22; --premium-star:#c9a227;
+  --premium-text:#ffffff; --premium-star-text:#3b2a05;
+
+  --tile-1:#fcf5de; --tile-2:#e6d4a0; --tile-text:#14532d; --tile-blank-text:#9a3412; --tile-edge:#5a3a1a99;
+  --tile-cur-1:#fff8dd; --tile-cur-2:#f0dd9a; --tile-cur-ring:#b8860b;
+  --tile-pick-ring:#d4af37; --tile-pick-blink:#14532d;
+  --tile-swap-1:#f3c9cd; --tile-swap-2:#d99aa1; --tile-swap-text:#4a0f1a; --tile-swap-ring:#ff9aa8;
+
+  --rack-1:#5a381f; --rack-2:#3d2412; --slot-bg:#0003;
+
+  --ok-bg:#14532dee; --ok-text:#ffffff; --bad-bg:#7a2433ee; --bad-text:#ffffff;
+  --turn-dot:#4ade80; --player-1:#d4af37; --player-2:#6f9db0;
+  --time-low:#fbbf24; --time-crit:#f87171; --verdict-ok:#4ade80; --verdict-bad:#f87171;
+
+  --cover-1:#5a3822; --cover-2:#2b1a10; --cover-3:#150b05;
+}
+
+/* ---------- Dark: charcoal, high-contrast tiles ---------- */
+[data-theme="dark"] {
+  --bg-page-1:#262a31; --bg-page-2:#121316;
+  --text-main:#e9e7e2; --accent:#f0b84a; --accent-text:#f0b84a; --accent-ink:#261a00;
+  --focus:#ffd479; --focus-halo:#000000;
+
+  --panel-bg:#1d2026e6; --panel-line:#4d5260; --surface-inset:#0006; --chip-bg:#0007; --chip-line:#f0b84a66;
+  --dialog-bg:#1c1f25; --dialog-line:#f0b84a; --backdrop:#000b;
+
+  --btn-1:#3b404c; --btn-2:#2b2f38; --btn-text:#ecebe6; --btn-line:#0008;
+  --btn-main-1:#1f7a46; --btn-main-2:#16603a; --btn-main-text:#ffffff;
+  --btn-danger-1:#b0364a; --btn-danger-2:#8a2a3b; --btn-danger-text:#ffffff;
+
+  --board-1:#2c3039; --board-2:#1e2128; --board-line:#08090b; --board-rim:#606673;
+  --sq-empty:#3b404b; --sq-line:#0006;
+  --premium-dl:#2a7a9c; --premium-tl:#3e5fc4; --premium-dw:#b94560; --premium-tw:#9c1f2c; --premium-star:#e0b43a;
+  --premium-text:#ffffff; --premium-star-text:#261a00;
+
+  --tile-1:#f3eee2; --tile-2:#dcd4c0; --tile-text:#1d2b24; --tile-blank-text:#a3361d; --tile-edge:#000000aa;
+  --tile-cur-1:#fff6d0; --tile-cur-2:#f6e19a; --tile-cur-ring:#c97f00;
+  --tile-pick-ring:#ffd479; --tile-pick-blink:#4fd18b;
+  --tile-swap-1:#f4c6cc; --tile-swap-2:#e39aa5; --tile-swap-text:#4a0f1a; --tile-swap-ring:#ff7a8f;
+
+  --rack-1:#30343e; --rack-2:#23262d; --slot-bg:#00000055;
+
+  --ok-bg:#1f7a46f2; --ok-text:#ffffff; --bad-bg:#b0364af2; --bad-text:#ffffff;
+  --turn-dot:#5be39a; --player-1:#f0b84a; --player-2:#5bb6e0;
+  --time-low:#ffc94d; --time-crit:#ff7b7b; --verdict-ok:#5be39a; --verdict-bad:#ff7b7b;
+
+  --cover-1:#2f333c; --cover-2:#1a1c21; --cover-3:#0c0d10;
+}
+
+/* ---------- Emerald: deep green, cream, gold ---------- */
+[data-theme="emerald"] {
+  --bg-page-1:#145a43; --bg-page-2:#07281d;
+  --text-main:#f5edd5; --accent:#dcb94e; --accent-text:#e3c35d; --accent-ink:#2d2203;
+  --focus:#f5d676; --focus-halo:#031a12;
+
+  --panel-bg:#0a3022d9; --panel-line:#dcb94e66; --surface-inset:#00000055; --chip-bg:#00000055; --chip-line:#dcb94e66;
+  --dialog-bg:#0d3a2a; --dialog-line:#dcb94e; --backdrop:#000b;
+
+  --btn-1:#1d5a47; --btn-2:#143f31; --btn-text:#f5edd5; --btn-line:#00000066;
+  --btn-main-1:#d6b23c; --btn-main-2:#b8921f; --btn-main-text:#2a1f02;
+  --btn-danger-1:#a63446; --btn-danger-2:#7c2433; --btn-danger-text:#ffffff;
+
+  --board-1:#1d6a50; --board-2:#134634; --board-line:#052217; --board-rim:#dcb94e88;
+  --sq-empty:#2e8266; --sq-line:#00000055;
+  --premium-dl:#1f7d8f; --premium-tl:#20509c; --premium-dw:#ad562f; --premium-tw:#8c1f33; --premium-star:#dcb94e;
+  --premium-text:#ffffff; --premium-star-text:#2d2203;
+
+  --tile-1:#fcf6e0; --tile-2:#ecdfb0; --tile-text:#0f4a36; --tile-blank-text:#9c3a12; --tile-edge:#0a2a1ebb;
+  --tile-cur-1:#fffae0; --tile-cur-2:#f4e6a6; --tile-cur-ring:#a8800f;
+  --tile-pick-ring:#f5d676; --tile-pick-blink:#0f4a36;
+  --tile-swap-1:#f6d2c6; --tile-swap-2:#e0a591; --tile-swap-text:#4a0f1a; --tile-swap-ring:#ffa0ac;
+
+  --rack-1:#174d3a; --rack-2:#0f3829; --slot-bg:#00000055;
+
+  --ok-bg:#11865af2; --ok-text:#ffffff; --bad-bg:#a63446f2; --bad-text:#ffffff;
+  --turn-dot:#8dffbe; --player-1:#dcb94e; --player-2:#7fd0c4;
+  --time-low:#ffd24d; --time-crit:#ff8a8a; --verdict-ok:#8dffbe; --verdict-bad:#ff9a9a;
+
+  --cover-1:#1f6b50; --cover-2:#0d3a2a; --cover-3:#041a12;
+}
+
+/* ---------- Desert: sand, terracotta, warm brown, ivory (a light theme) ---------- */
+[data-theme="desert"] {
+  --bg-page-1:#ead9b8; --bg-page-2:#d3b98a;
+  --text-main:#3b2616; --accent:#b8862b; --accent-text:#7a4f0a; --accent-ink:#2e1d08;
+  --focus:#3b2616; --focus-halo:#fff8e8;
+
+  --panel-bg:#fff8e8e6; --panel-line:#a67c3e99; --surface-inset:#6b43201f; --chip-bg:#f1e2c3; --chip-line:#a67c3e99;
+  --dialog-bg:#fff6e2; --dialog-line:#a8571f; --backdrop:#2a180a99;
+
+  --btn-1:#a95630; --btn-2:#8f4223; --btn-text:#fff8e8; --btn-line:#5a2a1066;
+  --btn-main-1:#3f7a55; --btn-main-2:#2d5e3f; --btn-main-text:#fff8e8;
+  --btn-danger-1:#a8322a; --btn-danger-2:#832019; --btn-danger-text:#fff8e8;
+
+  --board-1:#8d5a32; --board-2:#6e4326; --board-line:#4a2c15; --board-rim:#d6a85a99;
+  --sq-empty:#e8d2a4; --sq-line:#6b43204d;
+  --premium-dl:#377a84; --premium-tl:#1c4768; --premium-dw:#b5532f; --premium-tw:#7e2217; --premium-star:#d4a73a;
+  --premium-text:#ffffff; --premium-star-text:#2e1d08;
+
+  --tile-1:#fffaf0; --tile-2:#f2e4c4; --tile-text:#3b2616; --tile-blank-text:#a3361d; --tile-edge:#7a5a2eaa;
+  --tile-cur-1:#fff6d6; --tile-cur-2:#f7e3a0; --tile-cur-ring:#a8571f;
+  --tile-pick-ring:#a8571f; --tile-pick-blink:#3f7a55;
+  --tile-swap-1:#f6d0c0; --tile-swap-2:#e6a58e; --tile-swap-text:#4a0f1a; --tile-swap-ring:#fff3e6;
+
+  --rack-1:#8d6238; --rack-2:#704a28; --slot-bg:#0003;
+
+  --ok-bg:#3f7a55; --ok-text:#ffffff; --bad-bg:#a8322a; --bad-text:#ffffff;
+  --turn-dot:#2d7a46; --player-1:#a8571f; --player-2:#245a68;
+  --time-low:#8a5200; --time-crit:#b3261e; --verdict-ok:#1f6b3a; --verdict-bad:#b3261e;
+
+  --cover-1:#7a3b22; --cover-2:#3d1d10; --cover-3:#1e0e07;
+}

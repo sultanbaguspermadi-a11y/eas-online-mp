@@ -1,0 +1,37 @@
+// Static game data and constants. No logic, no DOM, no imports.
+
+export const SIZE = 15, RACK = 7, BINGO = 50, MIN_BAG_SWAP = 7, CENTER = 7, PENALTY = 5;
+export const DURATIONS = [10, 15, 25, 40, 60];
+export const DEFAULT_MINUTES = 25;
+export const DEFAULT_MODE = 'expanded';   // id of a profile in modes.js
+export const TOAST_MS = 4000, TICK_MS = 250;
+
+// Layout dimensions: key -> [min, max, step, default]. This single table drives the slider ranges, the internal
+// clamp and the defaults (dims.js), so the UI and the clamp can never disagree.
+export const DIM_LIMITS = {
+  boardScale:         [0.5, 1.5, 0.05, 1],  // board size multiplier
+  rackScale:          [0.5, 1,   0.05, 1],  // player racks width multiplier (1 = full panel width; the CSS cannot grow a rack past its panel)
+  buttonScale:        [0.6, 1.6, 0.05, 1],  // button height and text size multiplier
+  buttonGap:          [0,   24,  1,    6],  // gap between control buttons, px (no slider)
+  controlColumns:     [1,   6,   1,    3],  // control buttons per row (no slider)
+  historyScale:       [0.6, 1.6, 0.05, 1],  // history text size multiplier
+  historyHeightScale: [0.4, 1.6, 0.05, 1],  // history log height multiplier (capped at board height on desktop)
+  historyWidthScale:  [0.6, 1.6, 0.05, 1]   // history column width multiplier, desktop and landscape layouts
+};
+export const DIMENSIONS = Object.fromEntries(Object.entries(DIM_LIMITS).map(([k, l]) => [k, l[3]]));
+
+// Premium squares: 1 DL, 2 TL, 3 DW, 4 TW, 5 center (DW)
+const HALF = ['400100040001004','030002000200030','003000101000300','100300010003001','000030000030000','020002000200020','001000101000100','400100050001004'];
+export const LAYOUT = [...HALF, ...HALF.slice(0, 7).reverse()].map(s => [...s].map(Number));
+
+// Per-letter [x,y] offset in em so every glyph's ink is centred in the tile, above the value digit
+export const GLYPH = {ء:[0.00,-0.26],آ:[0.03,0.06],أ:[-0.00,0.10],ؤ:[0.07,-0.19],إ:[-0.04,-0.18],ئ:[-0.01,-0.21],ا:[0.00,-0.04],ب:[0.01,-0.34],ة:[-0.00,-0.11],ت:[0.01,-0.16],ث:[0.01,-0.11],ج:[-0.07,-0.54],ح:[-0.07,-0.54],خ:[-0.07,-0.43],د:[0.01,-0.21],ذ:[0.01,-0.09],ر:[0.06,-0.38],ز:[0.06,-0.23],س:[-0.00,-0.33],ش:[-0.00,-0.16],ص:[-0.00,-0.33],ض:[-0.00,-0.23],ط:[0.01,-0.05],ظ:[0.01,-0.05],ع:[-0.11,-0.40],غ:[-0.11,-0.32],ف:[-0.01,-0.05],ق:[0.01,-0.18],ك:[0.01,0.01],ل:[-0.01,-0.05],م:[0.01,-0.45],ن:[-0.01,-0.14],و:[0.07,-0.37],ى:[-0.01,-0.30],ي:[-0.01,-0.42],ه:[0.04,-0.21]};
+
+// Letter shown on tiles / blank picker; game logic still uses plain ه
+export const FACE = {'ه':'هـ'};
+
+// Full text everywhere; the centre star is a word x2
+export const LABEL = {1:'x2 حرف',2:'x3 حرف',3:'x2 كلمة',4:'x3 كلمة',5:'x2 كلمة'};
+
+export const NAMES = ['اللاعب الأول', 'اللاعب الثاني'];
+export const REASONS = {time:'انتهى وقت أحد اللاعبين', rack:'أنهى أحد اللاعبين جميع قطعه', resign:'استسلم أحد اللاعبين'};

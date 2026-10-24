@@ -1,0 +1,35 @@
+/* Cover screen shown before the game starts. A quiet dark scene: flat theme tint, a faint board grid, the title spelled in real game tiles.
+   Always dark; only the tint follows the theme (--cover-1/2). Tiles reuse the in-game tile tokens. No looping animation. */
+body.coverOn{overflow:hidden}
+.cover{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow:hidden;color:#f6ecd2;
+background:var(--cover-2);transition:opacity .4s ease,visibility .4s}
+.cover[hidden]{display:none}
+.cover.out{opacity:0;visibility:hidden;pointer-events:none}
+/* faint 15x15-style grid, fading out toward the edges */
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;
+background-image:linear-gradient(#d4af3722 1px,transparent 1px),linear-gradient(90deg,#d4af3722 1px,transparent 1px);
+background-size:clamp(34px,6vmin,56px) clamp(34px,6vmin,56px);background-position:center;
+-webkit-mask-image:radial-gradient(ellipse at 50% 45%,#000 0%,transparent 72%);mask-image:radial-gradient(ellipse at 50% 45%,#000 0%,transparent 72%)}
+.coverInner{position:relative;display:grid;justify-items:center;padding:24px;text-align:center}
+
+.coverTitle{--t:clamp(34px,min(9.4vw,10.5vh),68px);direction:ltr;display:grid;gap:calc(var(--t)*.14);margin:0}
+.cw{display:flex;justify-content:center;gap:calc(var(--t)*.08)}
+.cl{position:relative;display:grid;place-items:center;width:var(--t);height:var(--t);border-radius:12%;
+font-weight:700;font-size:calc(var(--t)*.62);line-height:1;color:var(--tile-text);
+background:linear-gradient(145deg,var(--tile-1),var(--tile-2));
+box-shadow:inset 0 1px 0 #fff9,0 0 0 1px var(--tile-edge),0 3px 6px #0008;
+animation:tileIn .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:calc(var(--i)*35ms + .08s)}
+.cl::after{content:attr(data-v);position:absolute;right:9%;bottom:5%;font-size:calc(var(--t)*.22);font-weight:700;line-height:1}
+@keyframes tileIn{from{opacity:0;transform:translateY(-14px)}}
+
+.coverSub{direction:ltr;margin:clamp(18px,3.4vh,30px) 0 0;font-size:clamp(.72rem,2.4vw,.9rem);font-weight:700;letter-spacing:.28em;padding-inline-start:.28em;color:#d4af37;
+animation:fadeIn .5s ease .6s backwards}
+.coverPlay{margin-top:clamp(26px,5vh,44px);font:700 1rem var(--font);letter-spacing:.2em;padding:.8em 2.6em .8em calc(2.6em + .2em);
+color:var(--accent-ink);background:var(--accent);border:0;border-radius:6px;cursor:pointer;
+box-shadow:0 2px 0 #0006;transition:transform .15s ease,filter .15s ease;animation:fadeIn .5s ease .75s backwards}
+.coverPlay:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.coverPlay:active{transform:translateY(1px);box-shadow:none}
+.coverPlay:focus-visible{outline:2px solid #f6ecd2;outline-offset:3px}
+.coverBy{direction:ltr;margin:clamp(22px,4vh,36px) 0 0;font-size:.85rem;letter-spacing:.12em;color:#f6ecd2b3;animation:fadeIn .5s ease .9s backwards}
+@keyframes fadeIn{from{opacity:0}}
+@media(prefers-reduced-motion:reduce){.cl,.coverSub,.coverPlay,.coverBy{animation:none}}

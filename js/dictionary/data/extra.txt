@@ -1,0 +1,2 @@
+# Exact surface forms accepted as-is (class X: no inflection, no clitics).
+# This is the drop-in place for an imported word list: see tools/import-wordlist.mjs and docs/word-validation.md.

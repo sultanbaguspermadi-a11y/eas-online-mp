@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "about": "Validator policy. Tiers: 0 = listed lexicon forms, 1 = regular inflection from a trusted stem, 2 = extended (grammatical but not backed by a flag).",
+  "minLength": 2,
+  "maxLength": 15,
+  "defaultStrictness": "hybrid",
+  "strictness": {
+    "strict": {
+      "maxTier": 0,
+      "clitics": false,
+      "about": "only listed lexicon forms",
+      "bank": "strong"
+    },
+    "hybrid": {
+      "maxTier": 1,
+      "clitics": true,
+      "about": "lexicon + regular morphology + clitics (default)",
+      "bank": "all"
+    },
+    "extended": {
+      "maxTier": 2,
+      "clitics": true,
+      "about": "hybrid + tanween alif and unflagged sound plurals",
+      "bank": "all"
+    }
+  },
+  "basic": {
+    "policy": "skeleton",
+    "about": "Basic mode has no hamza / ة / ى tiles, so a word is compared by its 28-letter spelling. Use policy 'strict' to require the exact orthography instead. Words with a stand-alone ء cannot be spelled in Basic mode.",
+    "projection": {
+      "أ": "ا",
+      "إ": "ا",
+      "آ": "ا",
+      "ؤ": "و",
+      "ئ": "ي",
+      "ة": "ه",
+      "ى": "ي"
+    }
+  },
+  "confidence": {
+    "lexicon": 1,
+    "morphology": 0.9,
+    "clitic": 0.8,
+    "extended": 0.6,
+    "bank": 0.85,
+    "bankWeak": 0.5
+  },
+  "files": {
+    "nouns": [
+      "nouns-core.txt",
+      "nouns-home-food.txt",
+      "nouns-nature-places-time.txt",
+      "nouns-abstract-society.txt",
+      "nouns-adjectives.txt"
+    ],
+    "verbs": [
+      "verbs.txt",
+      "verbs-irregular.txt"
+    ],
+    "extra": [
+      "extra.txt"
+    ]
+  },
+  "bank": {
+    "about": "Big word bank compiled by tools/build-bank.mjs. 'strong' = corroborated words (accepted, source 'bank'); 'weak' = isolated words. weak: 'uncertain' (provisional, Tahkim can rule) | 'accept' | 'reject'. 'mined' = stems the bank proves exist (tools/mine-bank.mjs), completed by the morphology rules (tools/build-mined.mjs).",
+    "files": {
+      "strong": "bank.bin.gz",
+      "weak": "bank-weak.bin.gz",
+      "mined": "mined.bin.gz"
+    },
+    "weak": "uncertain",
+    "shortWords": {
+      "maxLength": 4,
+      "bankOnly": "uncertain",
+      "about": "Words of up to maxLength letters that ONLY the word bank vouches for (no rule, no mined stem, no hand-written entry) are the densest source of generator noise: they are reported uncertain (provisional) instead of valid. bankOnly: 'uncertain' | 'accept' | 'reject'. Set maxLength to 0 to trust the bank at every length."
+    }
+  }
+}
