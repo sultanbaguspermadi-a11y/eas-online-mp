@@ -1,0 +1,12 @@
+# Supabase CLI project configuration (https://supabase.com/docs/guides/local-development/cli/config)
+# Only the settings this game depends on are listed; everything else keeps the CLI defaults.
+project_id = "eas-online"
+
+[auth]
+enable_anonymous_sign_ins = true      # players never register: each browser gets a stable anonymous identity
+
+[realtime]
+enabled = true
+
+[functions.eas-game]
+verify_jwt = true                     # the gateway rejects requests without a valid (anonymous or not) user JWT

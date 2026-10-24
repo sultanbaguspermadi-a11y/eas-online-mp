@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="classic">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arabic Scrabble — Integrated Version</title>
+<!-- Pre-paint: reuse the saved theme id so there is no flash of the default theme. An unknown id simply matches no theme block, i.e. classic. themes.js validates it again at startup. -->
+<script>try{var t=localStorage.getItem('scrabble.theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+try{var d=document.documentElement.dataset;d.hist='drawer';var l=JSON.parse(localStorage.getItem('scrabble.layout'))||{};d.bstyle=/^(iconlabel|text)$/.test(l.bstyle)?l.bstyle:'icon';d.pdock=/^(top|middle)$/.test(l.pdock)?l.pdock:'bottom';if(l.layout==='duel'){d.layout='duel';if(l.p1==='right')d.swap='true'}if(l.hist==='docked')d.hist='docked'}catch(e){}</script>
+<link rel="stylesheet" href="css/themes.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/cover.css">
+<link rel="stylesheet" href="css/online.css">
+</head>
+<body>
+<main class="app">
+<section class="boardWrap">
+<div id="board" class="board" role="grid" aria-label="لوح اللعب"></div>
+<div id="bagInfo" class="bag"></div>
+<button type="button" class="btn logBtn" id="bLog" aria-controls="hist" aria-expanded="false">سجل الكلمات</button>
+</section>
+<section class="side">
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="netBar" class="netBar" hidden><span id="netState" role="status" aria-live="polite"></span><button type="button" class="btn netLeave" id="netLeave">مغادرة</button></div>
+<div class="players" id="players"></div>
+<div class="ctrls">
+<button class="btn main" id="bSubmit"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="lbl">احتساب</span></button>
+<button class="btn" id="bCancel"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9l6 6M15 9l-6 6"/></svg><span class="lbl">إلغاء الحركة</span></button>
+<button class="btn" id="bSwap"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg><span class="lbl">تبديل القطع</span></button>
+<button class="btn" id="bPass"><svg class="ic flip" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM18 5v14"/></svg><span class="lbl">تمرير الدور</span></button>
+<button class="btn" id="bUndo"><svg class="ic flip" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg><span class="lbl">تراجع</span></button>
+<button class="btn danger" id="bNew"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">لعبة جديدة</span></button>
+<button class="btn wide" id="bJudge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M7 20h10M5 8h14M5 8l-3 7a3 3 0 006 0zM19 8l-3 7a3 3 0 006 0z"/></svg><span class="lbl">تحكيم</span></button>
+<button class="btn wide" id="bSettings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span class="lbl">الإعدادات</span></button>
+</div>
+</section>
+<aside class="hist" id="hist" aria-label="سجل الكلمات"><button type="button" class="histToggle" id="hToggle" aria-controls="hList" aria-expanded="true">إخفاء السجل</button><h2>سجل الكلمات</h2><ol class="hl" id="hList"></ol><p class="hbest" id="hBest"></p></aside>
+</main>
+<dialog id="dlg" aria-labelledby="dT"><h2 id="dT" tabindex="-1" autofocus></h2><p id="dM"></p><form method="dialog" id="dF"></form></dialog>
+<dialog id="md" aria-labelledby="mT"><h2 id="mT" tabindex="-1" autofocus>اختر نمط الحروف</h2><form method="dialog" id="mf"></form><form method="dialog" class="dlgRow"><button class="btn" id="mCancel" value="">إلغاء</button></form></dialog>
+<dialog id="sd" aria-labelledby="sT"><h2 id="sT" tabindex="-1" autofocus>مدة اللعبة</h2><p>الوقت لكل لاعب — تبدأ الساعة بعد أول حركة.</p><form method="dialog" id="sf"></form><form method="dialog" class="dlgRow"><button class="btn" value="back">رجوع</button></form></dialog>
+<dialog id="bd" aria-labelledby="bT"><h2 id="bT" tabindex="-1" autofocus>اختر الحرف</h2><form method="dialog" id="bf"></form><form method="dialog" class="dlgRow"><button class="btn" value="">إلغاء</button></form></dialog>
+<dialog id="od" aria-labelledby="oT"><h2 id="oT" tabindex="-1">اللعب عبر الإنترنت</h2><div id="oB"></div></dialog>
+<dialog id="jd" aria-labelledby="jT"><h2 id="jT" tabindex="-1" autofocus></h2><div id="jB"></div></dialog>
+<dialog id="ad" aria-labelledby="aT">
+<div class="fHead"><h2 id="aT" tabindex="-1">الإعدادات</h2><button type="button" class="btn fClose" id="aClose" aria-label="إغلاق" title="إغلاق"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<div class="setPanel">
+<h3 class="setH">المظهر</h3>
+<div class="thGrid" id="thB" role="group" aria-label="المظهر"></div>
+<h3 class="setH">التخطيط</h3>
+<div class="dimList" id="lyB"></div>
+<h3 class="setH">فحص الكلمات</h3>
+<div class="dimList" id="wcB"></div>
+<h3 class="setH">الأبعاد</h3>
+<div class="dimList" id="dmB"></div>
+<button class="btn" id="dmReset" type="button">إعادة ضبط الأبعاد</button>
+<button class="btn" id="flReset" type="button">إعادة مواضع النوافذ العائمة</button>
+</div>
+</dialog>
+<section id="cover" class="cover" aria-label="Arabic Scrabble Integrated Version" hidden>
+<div class="coverInner">
+<div id="coverTitle" class="coverTitle" role="img" aria-label="Arabic Scrabble"></div>
+<p class="coverSub">INTEGRATED VERSION</p>
+<div class="coverActions"><button id="coverPlay" class="coverPlay" type="button">LOCAL GAME</button><button id="coverOnline" class="coverPlay coverAlt" type="button">ONLINE GAME</button></div>
+<p class="coverBy">by esbepe</p>
+</div>
+</section>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

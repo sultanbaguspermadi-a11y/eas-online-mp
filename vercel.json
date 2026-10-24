@@ -1,0 +1,8 @@
+{
+  "buildCommand": "node tools/write-env.mjs",
+  "outputDirectory": ".",
+  "framework": null,
+  "headers": [
+    { "source": "/js/dictionary/data/(.*)", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Cache-Control", "value": "public, max-age=86400" }] }
+  ]
+}
