@@ -5,7 +5,7 @@
 //   Network state machine:  CONNECTING -> CONNECTED <-> RECONNECTING / OFFLINE, SYNCING while a snapshot is being fetched.
 import { RACK } from '../config.js';
 import { $, S, BY, app, playerName } from '../state.js';
-import { toast, fail, ask, render, tickUI, chips, buildBlankPicker } from '../ui.js';
+import { toast, fail, ask, render, renderControls, tickUI, chips, buildBlankPicker, setText, setClass, setDis } from '../ui.js';
 import { REASONS } from '../config.js';
 import { createBackend, isConfigured } from './supabase-backend.js';
 import { lobby } from './lobby.js';
@@ -65,7 +65,7 @@ function subscribe(gameId) {
   net.sub?.close?.();
   Promise.resolve(net.backend.subscribe(gameId, {
     onEvent: p => { net.lastEvent = Date.now(); if (!net.snap || p.revision > net.snap.game.revision) sync(); },
-    onPresence: ids => { net.opp = ids.some(u => u !== net.userId); paintStatus(); },
+    onPresence: ids => { const opp = ids.some(u => u !== net.userId); if (opp !== net.opp) { net.opp = opp; paintStatus(); } },   // presence never touches the game DOM
     onStatus: s => {
       if (s === 'SUBSCRIBED') { setState('SYNCING'); net.backend.track?.({ seat: net.seat }); sync(); }
       else { setState('RECONNECTING'); net.opp = false; clearTimeout(net.resub); net.resub = setTimeout(() => subscribe(gameId), 2000); }
@@ -77,7 +77,7 @@ function subscribe(gameId) {
 // ---------- synchronisation ----------
 export async function sync() {
   if (!net.snap || net.fetching) { net.again = net.fetching; return; }
-  net.fetching = true; if (net.state !== 'OFFLINE') setState('SYNCING');
+  net.fetching = true;   // routine syncs stay invisible; SYNCING is only shown by (re)subscribing, see subscribe()
   try {
     const r = await call({ action: 'snapshot', game_id: net.snap.game.id }, { quiet: true, retries: 1 });
     if (r?.ok) { apply(r.snapshot); setState('CONNECTED'); }
@@ -92,6 +92,8 @@ function setState(s) { if (net.state !== s) { net.state = s; paintStatus(); } }
 export function apply(snap) {
   const old = net.snap;
   if (old && snap.game.id === old.game.id && snap.game.revision < old.game.revision) return;   // an older snapshot never replaces a newer one
+  // The same revision is the same game: a safety poll, a duplicate event or a sync after a tab switch must not rebuild anything.
+  if (old && snap.game.id === old.game.id && snap.game.revision === old.game.revision) return;
   net.snap = snap; net.seat = snap.me.seat;
   const g = snap.game;
   app.names = [0, 1].map(i => snap.players.find(p => p.seat === i)?.nickname || (i ? 'اللاعب الثاني' : 'اللاعب الأول'));
@@ -100,7 +102,6 @@ export function apply(snap) {
   lobby.close();
   hideCover();
   hydrate(snap, old);
-  net.backend.track?.({ seat: net.seat });
 }
 
 const reg = o => { const t = BY[o.id]; if (t) { Object.assign(t, { l: o.l, v: o.v, blank: o.blank, as: o.as }); return t; } return (BY[o.id] = { id: o.id, l: o.l, v: o.v, blank: o.blank, as: o.as }); };
@@ -116,6 +117,7 @@ function hydrate(snap, old) {
     buildBlankPicker();
     const t = $('#toast'); t.textContent = ''; t.className = '';   // drop the local game's "new game" message
   }
+  const prevScores = fresh ? null : S.players.map(p => p.score);
   S.board = snap.board.map(row => row.map(c => c && reg(c)));
   S.players = [0, 1].map(i => {
     const p = snap.players.find(x => x.seat === i) || { score: 0, tile_count: 0, ms_left: g.minutes * 60000 };
@@ -132,7 +134,9 @@ function hydrate(snap, old) {
     if (slot >= 0 && !S.board[k.r][k.c]) { S.players[me].rack[slot] = null; if (t.blank) t.as = k.as; S.move.push({ t, r: k.r, c: k.c, slot }); S.board[k.r][k.c] = t; }
   }
   net.clock = { offset: snap.server_now - Date.now(), startedAt: g.turn_started_at, running: g.clock_running, base: snap.players.map(p => p.ms_left) };
-  if (old && !fresh && snap.moves.length > net.lastMoves) { const m = snap.moves[snap.moves.length - 1]; if (m.p !== me) announce(m); S.pop = m.p; }
+  if (old && !fresh && snap.moves.length > net.lastMoves) { const m = snap.moves[snap.moves.length - 1]; if (m.p !== me) announce(m); }
+  // the score pop belongs to a score that actually changed (a pass or a swap changes no score)
+  if (prevScores) { const i = S.players.findIndex((p, k) => p.score !== prevScores[k]); if (i >= 0) S.pop = i; }
   net.lastMoves = snap.moves.length;
   render(); tickUI(); paintStatus();
   tahkimUI(snap); if (S.ended) showResult(snap);
@@ -150,6 +154,8 @@ net.tick = function () {
 };
 
 // ---------- actions ----------
+// myTurn: pure game state (what tiles look like). canPlay: myTurn AND no request in flight (what a click may do). Only the first may drive rendering.
+net.myTurn = () => !!net.snap && net.snap.game.status === 'active' && S.cur === net.seat && !S.ended;
 net.canPlay = () => !!net.snap && !net.busy && net.snap.game.status === 'active' && S.cur === net.seat && !S.ended;
 net.guard = () => {
   if (net.snap?.game.status === 'tahkim_pending') { fail('التحكيم قيد الانتظار.'); return false; }
@@ -162,14 +168,14 @@ net.guard = () => {
 async function act(action, extra = {}, { quiet = false } = {}) {
   if (net.busy && action !== 'claim_timeout') return null;
   const snap = net.snap; if (!snap) return null;
-  net.busy = true; render();
+  net.busy = true; renderControls();   // a pending request only changes button state
   try {
     const r = await call({ action, game_id: snap.game.id, client_action_id: id6(), base_revision: snap.game.revision, ...extra }, { quiet });
     if (!r) return null;
     if (r.snapshot) apply(r.snapshot);
     if (!r.ok) { if (!quiet && r.code !== 'NOT_EXPIRED') fail(r.message || 'تعذّر تنفيذ الإجراء.'); return r; }
     return r;
-  } finally { net.busy = false; render(); }
+  } finally { net.busy = false; renderControls(); }
 }
 
 net.submit = async function () {
@@ -244,19 +250,19 @@ net.call = call;
 const NET_AR = { CONNECTING: 'جارٍ الاتصال…', CONNECTED: 'متصل', RECONNECTING: 'جارٍ إعادة الاتصال…', OFFLINE: 'لا يوجد اتصال', SYNCING: 'جارٍ المزامنة…' };
 function paintStatus() {
   const bar = $('#netBar'), st = $('#netState'); if (!bar) return;
-  bar.hidden = false;
+  if (bar.hidden) bar.hidden = false;
   const g = net.snap?.game, opp = 1 - net.seat;
   let t = net.state === 'CONNECTED' ? '' : NET_AR[net.state];
   if (!t && g && g.status === 'tahkim_pending') t = g.tahkim.resolver_seat === net.seat ? 'التحكيم: بانتظار حكمك' : `بانتظار حكم ${playerName(g.tahkim.resolver_seat)}…`;
   if (!t && g && (g.status === 'active') && !net.opp) t = `${playerName(opp)} غير متصل — بانتظار عودته…`;
   if (!t && g && g.status === 'finished' && (g.rematch_seats || []).includes(opp)) t = `${playerName(opp)} يطلب إعادة المباراة`;
-  st.textContent = t || `● متصل · الغرفة ${g?.room_code || ''}`;
-  bar.classList.toggle('warn', net.state !== 'CONNECTED' || (!!g && g.status === 'active' && !net.opp));
+  setText(st, t || `● متصل · الغرفة ${g?.room_code || ''}`);
+  setClass(bar, 'netBar' + (net.state !== 'CONNECTED' || (!!g && g.status === 'active' && !net.opp) ? ' warn' : ''));
   for (const i of [0, 1]) { const el = document.querySelector(`#pn${i} .pstat`); if (el) paintStat(i, el); }
 }
 function paintStat(i, el) {
   const on = i === net.seat ? net.state !== 'OFFLINE' && net.state !== 'RECONNECTING' : net.opp;
-  el.textContent = on ? '● متصل' : '○ غير متصل'; el.className = 'pstat ' + (on ? 'on' : 'off');
+  setText(el, on ? '● متصل' : '○ غير متصل'); setClass(el, 'pstat ' + (on ? 'on' : 'off'));
 }
 net.paintName = function (i, el) {
   if (!el) return;
@@ -266,9 +272,9 @@ net.paintName = function (i, el) {
 };
 net.paintControls = function () {
   const E = S.ended, mine = net.canPlay(), g = net.snap?.game;
-  const dis = (id, v) => { const b = $(id); b.disabled = b.disabled || v; };
+  const dis = (id, v) => { const b = $(id); setDis(b, b.disabled || v); };
   dis('#bSubmit', !mine); dis('#bCancel', !mine); dis('#bSwap', !mine); dis('#bPass', !mine);
-  $('#bJudge').disabled = $('#bJudge').disabled || !mine && !(g?.status === 'tahkim_pending' && g.tahkim.resolver_seat === net.seat);
-  $('#bNew .lbl').textContent = E ? 'إعادة المباراة' : 'استسلام';
-  $('#bUndo').title = 'لا يوجد تراجع في اللعب عبر الإنترنت — استخدم التحكيم';
+  setDis($('#bJudge'), $('#bJudge').disabled || (!mine && !(g?.status === 'tahkim_pending' && g.tahkim.resolver_seat === net.seat)));
+  setText($('#bNew .lbl'), E ? 'إعادة المباراة' : 'استسلام');
+  const u = $('#bUndo'), tip = 'لا يوجد تراجع في اللعب عبر الإنترنت — استخدم التحكيم'; if (u.title !== tip) u.title = tip;
 };

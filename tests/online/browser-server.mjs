@@ -17,12 +17,13 @@ export async function startServer() {
   const push = (g, event, data) => (subs.get(g) || new Set()).forEach(s => s.res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
   const origCommit = store.commit.bind(store);
   store.commit = async (...a) => { const r = await origCommit(...a); const ev = store.events.at(-1); if (!r.duplicate && ev) push(ev.game_id, 'game', { revision: ev.revision, status: ev.status, event: ev.event }); return r; };
-  const state = { offline: new Set() };   // user ids whose calls are failing (simulated network loss)
+  const state = { offline: new Set(), delay: 0 };   // user ids whose calls are failing (simulated network loss)
   const srv = http.createServer(async (req, res) => {
     const u = new URL(req.url, 'http://x');
     if (u.pathname === '/__rpc') {
       let b = ''; for await (const c of req) b += c; const { uid, body } = JSON.parse(b);
       if (state.offline.has(uid)) { res.writeHead(503); return res.end('down'); }
+      if (state.delay) await new Promise(r => setTimeout(r, state.delay));
       const out = await handleRequest(store, uid, body, deps);
       res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify(out));
     }
@@ -35,6 +36,8 @@ export async function startServer() {
     }
     if (u.pathname === '/__test') {       // test-only arrangement of server-private state
       let b = ''; for await (const c of req) b += c; const o = JSON.parse(b || '{}');
+      if ('delay' in o) state.delay = o.delay;
+      if (o.pushPresence) push(o.pushPresence, 'presence', presence(o.pushPresence));
       if (o.offline) state.offline.add(o.offline); if (o.online) state.offline.delete(o.online);
       if (o.rack) { const p = store.peek(o.game), pid = o.uid; p.racks[pid] = Array.from({ length: 7 }, (_, i) => o.rack[i] === undefined ? null : { id: 'T' + i + Math.random().toString(36).slice(2, 5), l: o.rack[i], v: o.vals?.[i] ?? 1, blank: false, as: null }); p.players.find(x => x.player_id === pid).tile_count = o.rack.length; }
       if (o.peek) { res.writeHead(200, { 'content-type': 'application/json' }); const p = store.peek(o.game); return res.end(JSON.stringify({ racks: p.racks, bag: p.priv.bag })); }

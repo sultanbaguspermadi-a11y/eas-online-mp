@@ -66,7 +66,8 @@ function tileHTML(t) {
   if (t.hidden) return '<div class="tile back" aria-hidden="true"></div>';   // the opponent's tiles online: only their number is known
   const L = t.blank ? (t.as || '') : t.l, v = t.blank ? 0 : t.v;
   const mine = cur().rack.includes(t), mv = inMove(t);
-  const ok = !S.ended && (!app.net || app.net.canPlay()) && (S.swap ? mine : (mine || mv));
+  // Online, tile appearance follows TURN OWNERSHIP only. A request in flight or a background sync must never restyle (and so rebuild) every tile.
+  const ok = !S.ended && (!app.net || app.net.myTurn()) && (S.swap ? mine : (mine || mv));
   const cls = ['tile', t.blank && 'blank', mv && 'cur', S.pick === t && 'pick', S.sel.has(t) && 'swp', S.land === t && 'land', !ok && 'dim'].filter(Boolean).join(' ');
   return `<div class="${cls}" data-id="${t.id}" draggable="${ok && !S.swap}" tabindex="0" role="button"${ok ? '' : ' aria-disabled="true"'} aria-label="${L || 'قطعة فارغة'} قيمة ${v}"><b${GLYPH[L] ? ` style="transform:translate(${GLYPH[L][0]}em,${GLYPH[L][1]}em)"` : ''}>${FACE[L] || L}</b><i>${v}</i></div>`;
 }
@@ -79,30 +80,36 @@ function renderBoard() {
     el.setAttribute('aria-label', t ? (t.blank ? t.as : t.l) : (LABEL[k] ? (k === 5 ? 'مربع نجمة' : 'مربع ' + LABEL[k]) : 'مربع فارغ'));
   });
 }
+// DOM writes are guarded: an unchanged value is never written again (a rewrite repaints even when nothing visibly changed).
+const setText = (el, tx) => { if (el.textContent !== tx) el.textContent = tx; };
+const setAttr = (el, k, v) => { v = String(v); if (el.getAttribute(k) !== v) el.setAttribute(k, v); };
+const setClass = (el, cn) => { if (el.className !== cn) el.className = cn; };
+const setDis = (el, v) => { v = !!v; if (el.disabled !== v) el.disabled = v; };
+export { setText, setAttr, setClass, setDis };
 function renderPlayers() {
   S.players.forEach((p, i) => {
-    const on = i === S.cur && !S.ended;
-    if (app.net) app.net.paintName(i, $('#pn' + i).querySelector('.pname'));
-    $('#pn' + i).className = 'panel' + (on ? ' on' : ''); $('#pn' + i).setAttribute('aria-current', on);
-    const sc = $('#sc' + i); sc.textContent = p.score;
-    if (S.pop === i) { sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop'); }
+    const on = i === S.cur && !S.ended, panel = $('#pn' + i);
+    if (app.net) app.net.paintName(i, panel.querySelector('.pname'));
+    setClass(panel, 'panel' + (on ? ' on' : '')); setAttr(panel, 'aria-current', on);
+    const sc = $('#sc' + i); setText(sc, String(p.score));
+    if (S.pop === i) { sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop'); }   // intentional reflow, once per real score event (S.pop is cleared below)
     const rk = $('#rk' + i), h = p.rack.map((t, k) => `<div class="slot" data-p="${i}" data-i="${k}">${t ? tileHTML(t) : ''}</div>`).join('');
     if (rk._h !== h) { rk._h = h; rk.innerHTML = h; }
   });
   S.pop = null;
 }
-function renderControls() {
+export function renderControls() {
   const mv = S.move.length > 0, E = S.ended;
-  $('#bSubmit .lbl').textContent = S.swap ? `تأكيد التبديل (${S.sel.size})` : 'احتساب';
-  $('#bSubmit').disabled = E || (S.swap ? !S.sel.size : !mv);
-  $('#bCancel .lbl').textContent = S.swap ? 'إلغاء التبديل' : 'إلغاء الحركة';
-  $('#bCancel').disabled = E || (!S.swap && !mv);
-  $('#bSwap').disabled = E || S.swap || mv;
-  $('#bPass').disabled = E || S.swap || mv;
-  $('#bUndo').disabled = E || S.swap || mv || !S.undo || !!app.net;
-  $('#bJudge').disabled = E || S.swap || mv || !S.undo;
+  setText($('#bSubmit .lbl'), S.swap ? `تأكيد التبديل (${S.sel.size})` : 'احتساب');
+  setDis($('#bSubmit'), E || (S.swap ? !S.sel.size : !mv));
+  setText($('#bCancel .lbl'), S.swap ? 'إلغاء التبديل' : 'إلغاء الحركة');
+  setDis($('#bCancel'), E || (!S.swap && !mv));
+  setDis($('#bSwap'), E || S.swap || mv);
+  setDis($('#bPass'), E || S.swap || mv);
+  setDis($('#bUndo'), E || S.swap || mv || !S.undo || !!app.net);
+  setDis($('#bJudge'), E || S.swap || mv || !S.undo);
   if (app.net) app.net.paintControls();
-  $('#bagInfo').textContent = `${profile().labelAr} · الكيس: ${bagCount()}`;
+  setText($('#bagInfo'), `${profile().labelAr} · الكيس: ${bagCount()}`);
 }
 export function tickUI() {
   S.players.forEach((p, i) => {

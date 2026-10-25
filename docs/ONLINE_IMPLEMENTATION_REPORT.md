@@ -61,3 +61,16 @@ See `ONLINE_ARCHITECTURE.md` (state split, actions, revision, idempotency, realt
 5. Vercel: env `SUPABASE_URL`, `SUPABASE_ANON_KEY`; build command `node tools/write-env.mjs`; output `.`; redeploy.
 6. Run `cd tests && npm install && npm test`; fix anything the jsdom/layout suites report.
 7. Two-device test (setup §11).
+
+## Desktop render stability (follow-up)
+Measured with `tests/online/render-stability.mjs` (MutationObserver + Chromium layout/style counters, 27 s idle online match at 1366×768, with safety polls, visibility/online syncs and repeated presence events injected).
+
+| | before | after |
+|---|---|---|
+| DOM writes outside the countdown | ~270 (130 rewrote an identical value) | 0 |
+| history list rebuilds | 10 | 0 |
+| layouts / style recalcs | 42 / 66 | 27 / 27 (one per second: the countdown text) |
+| busy request (slow server) | rebuilt board + rack + panels | only the button states |
+| score pop on a pass | fired (bug) | fires only when a score changed |
+
+Root causes: (1) every snapshot, even an identical revision, ran full `hydrate()` → `render()` and bumped the history version, rebuilding the history list; (2) `act()` ran a full `render()` before and after every request, and tile HTML depended on `net.canPlay()` (which includes the in-flight flag), so each request restyled and replaced every tile; (3) routine syncs flashed "جارٍ المزامنة…"; (4) player panel, score, status and button writes were unconditional; (5) `track()` re-announced presence on every hydrate; (6) `hideCover()` rewrote the cover each time. CSS was audited (container queries are inline-size only, no circular dependency; no forced reflow in render paths) and left unchanged.

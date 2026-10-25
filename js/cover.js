@@ -10,6 +10,7 @@ function buildTitle(el) {
 
 export function hideCover() {
   const cover = document.getElementById('cover');
+  if (cover.hidden || cover.classList.contains('out')) return;   // already gone: do not touch the DOM again
   cover.classList.add('out'); document.querySelector('.app').inert = false; document.body.classList.remove('coverOn');
   setTimeout(() => { cover.hidden = true; }, 420);
 }
